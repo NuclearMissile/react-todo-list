@@ -7,37 +7,29 @@ import {FaCheck} from "react-icons/fa";
 import {FaListCheck} from "react-icons/fa6";
 
 export default function TodoList() {
-    // State variables
-    const [tasks, setTasks] = useState([]); // Holds the list of tasks
-    const [inputValue, setInputValue] = useState(''); // Holds the value of the input field
-    const [filter, setFilter] = useState('all'); // Holds the current filter type
-    const [isLoading, setIsLoading] = useState(true); // Indicates whether the data is being loaded
-    const [editTaskId, setEditTaskId] = useState(null); // Holds the ID of the task being edited
+    const [tasks, setTasks] = useState([]);
+    const [inputValue, setInputValue] = useState('');
+    const [filter, setFilter] = useState('all');
+    const [editTaskId, setEditTaskId] = useState(null);
 
-    // Fetch initial data
     useEffect(() => {
         fetchTodos();
     }, []);
 
-    // Fetch todos from an API
     const fetchTodos = async () => {
         try {
             const response = await fetch('https://jsonplaceholder.typicode.com/todos?_limit=4');
             const todos = await response.json();
             setTasks(todos);
-            setIsLoading(false);
         } catch (error) {
             console.log('Error fetching todos:', error);
-            setIsLoading(false);
         }
     };
 
-    // Handle input change
     const handleInputChange = (event) => {
         setInputValue(event.target.value);
     };
 
-    // Add a new task
     const handleAddTask = async () => {
         if (inputValue.trim() === '') {
             return;
@@ -63,7 +55,6 @@ export default function TodoList() {
         }
     };
 
-    // Handle checkbox change for a task
     const handleTaskCheckboxChange = (taskId) => {
         setTasks((prevTasks) => prevTasks.map((task) => task.id === taskId ? {
             ...task,
@@ -71,7 +62,6 @@ export default function TodoList() {
         } : task));
     };
 
-    // Delete a task
     const handleDeleteTask = (taskId) => {
         setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
         if (editTaskId === taskId) {
@@ -81,7 +71,6 @@ export default function TodoList() {
         toast.success('Task deleted successfully');
     };
 
-    // Edit a task
     const handleEditTask = (taskId) => {
         if (editTaskId === taskId) {
             setEditTaskId(null);
@@ -93,7 +82,6 @@ export default function TodoList() {
         setInputValue(taskToEdit.title);
     };
 
-    // Update a task
     const handleUpdateTask = async () => {
         if (inputValue.trim() === '') {
             return;
@@ -123,17 +111,12 @@ export default function TodoList() {
         }
     };
 
-    // Mark all tasks as completed
-    const handleCompleteAll = () => {
-        setTasks((prevTasks) => prevTasks.map((task) => ({...task, completed: true})));
-    };
+    const handleCompleteAll = () =>
+        setTasks((tasks) => tasks.map((task) => ({...task, completed: true})));
 
-    // Handle filter change
-    const handleFilterChange = (filterType) => {
-        setFilter(filterType);
-    };
 
-    // Filter tasks based on the selected filter
+    const handleFilterChange = (filterType) => setFilter(filterType);
+
     const filteredTasks = tasks.filter((task) => {
         if (filter === 'all') {
             return true;
@@ -145,12 +128,6 @@ export default function TodoList() {
         return true;
     });
 
-    // Display loading message while data is being fetched
-    if (isLoading) {
-        return <div>Loading...</div>;
-    }
-
-    // Render the todo list
     return (
         <div className="container">
             <ToastContainer/>
@@ -180,31 +157,34 @@ export default function TodoList() {
                 </div>
 
                 <ul id="list">
-                    {filteredTasks.map((task) => (<li key={task.id} className={editTaskId === task.id ? 'edit-mode' : ''}>
-                        <input
-                            type="checkbox"
-                            id={`task-${task.id}`}
-                            data-id={task.id}
-                            className="custom-checkbox"
-                            checked={task.completed}
-                            onChange={() => handleTaskCheckboxChange(task.id)}
-                        />
-                        <label htmlFor={`task-${task.id}`}>{task.title}</label>
-                        <div>
-                            <img
-                                src="https://cdn-icons-png.flaticon.com/128/1159/1159633.png"
-                                className="edit"
+                    {filteredTasks.map((task) => (
+                        <li key={task.id} className={editTaskId === task.id ? 'edit-mode' : ''}>
+                            <input
+                                type="checkbox"
+                                id={`task-${task.id}`}
                                 data-id={task.id}
-                                onClick={() => handleEditTask(task.id)}
+                                className="custom-checkbox"
+                                checked={task.completed}
+                                onChange={() => handleTaskCheckboxChange(task.id)}
                             />
-                            <img
-                                src="https://cdn-icons-png.flaticon.com/128/3096/3096673.png"
-                                className="delete"
-                                data-id={task.id}
-                                onClick={() => handleDeleteTask(task.id)}
-                            />
-                        </div>
-                    </li>))}
+                            <label htmlFor={`task-${task.id}`}>{task.title}</label>
+                            <div>
+                                <img
+                                    src="https://cdn-icons-png.flaticon.com/128/1159/1159633.png"
+                                    className="edit"
+                                    data-id={task.id}
+                                    onClick={() => handleEditTask(task.id)}
+                                    alt='edit'
+                                />
+                                <img
+                                    src="https://cdn-icons-png.flaticon.com/128/3096/3096673.png"
+                                    className="delete"
+                                    data-id={task.id}
+                                    onClick={() => handleDeleteTask(task.id)}
+                                    alt='delete'
+                                />
+                            </div>
+                        </li>))}
                 </ul>
 
                 <div className="filters">
